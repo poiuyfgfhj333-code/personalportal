@@ -1,0 +1,98 @@
+{
+  "categories": [
+    {
+      "id": "lms",
+      "title": "LMS (온라인 강의실)",
+      "color": "text-blue-400"
+    },
+    {
+      "id": "pknu",
+      "title": "부경대 포털 및 홈페이지",
+      "color": "text-cyan-400"
+    },
+    {
+      "id": "dept",
+      "title": "학과별 홈페이지",
+      "color": "text-rose-400"
+    },
+    {
+      "id": "research",
+      "title": "연구 관련",
+      "color": "text-emerald-400"
+    }
+  ],
+  "sites": [
+    {
+      "id": "pknu-lms",
+      "title": "부경대 LMS",
+      "url": "https://lms.pknu.ac.kr/ilos/main/main_form.acl",
+      "category": "lms"
+    },
+    {
+      "id": "inu-huss",
+      "title": "인천대 HUSS",
+      "url": "https://lms.hussis.ac.kr/login/index.php",
+      "category": "lms"
+    },
+    {
+      "id": "hansapyung",
+      "title": "한국사이버평생교육원",
+      "url": "https://www.hakjum.com/index.asp",
+      "category": "lms"
+    },
+    {
+      "id": "pknu-main",
+      "title": "부경대 대표홈페이지",
+      "url": "https://www.pknu.ac.kr/main",
+      "category": "pknu"
+    },
+    {
+      "id": "pknu-portal",
+      "title": "부경대 종합포털",
+      "url": "https://portal.pknu.ac.kr/",
+      "category": "pknu"
+    },
+    {
+      "id": "pknu-library",
+      "title": "부경대 도서관",
+      "url": "https://libweb.pknu.ac.kr/",
+      "category": "pknu"
+    },
+    {
+      "id": "pknu-welfare",
+      "title": "사회복지학전공",
+      "url": "https://icms.pknu.ac.kr/ps1/1",
+      "category": "dept"
+    },
+    {
+      "id": "pknu-bme",
+      "title": "의공학전공",
+      "url": "https://bme.pknu.ac.kr/bme/1",
+      "category": "dept"
+    },
+    {
+      "id": "pknu-huss-dept",
+      "title": "HUSS 사업단",
+      "url": "https://icms.pknu.ac.kr/huss/1",
+      "category": "dept"
+    },
+    {
+      "id": "google-scholar",
+      "title": "Google Scholar",
+      "url": "https://scholar.google.com/?hl=ko",
+      "category": "research"
+    },
+    {
+      "id": "dbpia",
+      "title": "DBpia",
+      "url": "https://www.dbpia.co.kr/",
+      "category": "research"
+    },
+    {
+      "id": "pknu-biophysics",
+      "title": "계산생물물리학 연구실",
+      "url": "https://icms.pknu.ac.kr/biophysics/1",
+      "category": "research"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "cat-course",
+    "name": "수강 과목",
+    "color": "blue",
+    "is_system": true
+  },
+  {
+    "id": "cat-academic",
+    "name": "학사일정",
+    "color": "orange",
+    "is_system": true
+  },
+  {
+    "id": "cat-task",
+    "name": "과제 / 시험",
+    "color": "rose",
+    "is_system": false
+  },
+  {
+    "id": "cat-research",
+    "name": "연구 / 세미나",
+    "color": "emerald",
+    "is_system": false
+  },
+  {
+    "id": "cat-personal",
+    "name": "개인 일정",
+    "color": "amber",
+    "is_system": false
+  },
+  {
+    "id": "cat-club",
+    "name": "동아리",
+    "color": "purple",
+    "is_system": false
+  },
+  {
+    "id": "cat-etc",
+    "name": "기타",
+    "color": "cyan",
+    "is_system": false
+  }
+]

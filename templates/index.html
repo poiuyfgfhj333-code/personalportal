@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>개인 통합 포털 대시보드 | Portal Dashboard</title>
+  
+  <!-- Google Fonts: Pretendard & Inter -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            },
+            darkbg: {
+              base: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              hover: '#273549'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased transition-colors duration-200">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      
+      <!-- Brand / Title (Single Line) -->
+      <div class="flex items-center space-x-2.5 cursor-pointer shrink-0" onclick="switchTab('home')">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-bold text-base shrink-0">
+          <i data-lucide="layout-dashboard" class="w-4.5 h-4.5"></i>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <h1 class="text-base font-bold tracking-tight text-white whitespace-nowrap">
+            My Portal
+          </h1>
+          <span class="text-[11px] px-1.5 py-0.2 rounded-full bg-blue-500/20 text-blue-400 font-semibold border border-blue-500/30 whitespace-nowrap">Hub</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Desktop) -->
+      <nav class="hidden md:flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/50 shrink-0">
+        <button onclick="switchTab('home')" id="tab-btn-home" class="tab-btn active px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap">
+          <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+          <span>Home</span>
+        </button>
+        <button onclick="switchTab('site')" id="tab-btn-site" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 text-slate-400 hover:text-white whitespace-nowrap">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+          <span>Site</span>
+        </button>
+        <button onclick="switchTab('course')" id="tab-btn-course" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 text-slate-400 hover:text-white whitespace-nowrap">
+          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+          <span>Course</span>
+        </button>
+        <button onclick="switchTab('schedule')" id="tab-btn-schedule" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 text-slate-400 hover:text-white whitespace-nowrap">
+          <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
+          <span>Schedule</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Actions (Clean Single-Line Row) -->
+      <div class="flex items-center space-x-2 shrink-0">
+        <!-- Mobile Connect QR Button -->
+        <button id="btn-mobile-connect" onclick="openMobileConnectModal()" class="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 hover:text-indigo-200 border border-indigo-500/30 transition shadow-sm font-medium whitespace-nowrap shrink-0" title="스마트폰/타블렛 접속 (QR 코드)">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span class="font-medium whitespace-nowrap">모바일 접속</span>
+        </button>
+
+        <!-- Live Clock (HH:MM:SS Monospace) -->
+        <div class="hidden lg:flex items-center gap-1.5 text-xs text-slate-300 bg-slate-800/60 px-2.5 py-1.5 rounded-lg border border-slate-700/50 whitespace-nowrap shrink-0">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-blue-400"></i>
+          <span id="live-clock" class="font-mono text-xs whitespace-nowrap">--:--:--</span>
+        </div>
+
+        <!-- Monitorix Status Pill -->
+        <div id="server-status-pill" class="hidden xl:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-medium whitespace-nowrap shrink-0">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="whitespace-nowrap">Server 9090 Online</span>
+        </div>
+
+        <!-- Auth Login / Profile Container -->
+        <div id="auth-container" class="flex items-center shrink-0 whitespace-nowrap">
+          <!-- Logged Out State Button -->
+          <button id="btn-open-login" onclick="openLoginModal()" class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium shadow-sm transition whitespace-nowrap shrink-0" title="관리자 로그인">
+            <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+            <span>로그인</span>
+          </button>
+          
+          <!-- Logged In State Badge & Logout Button (Slim Horizontal Pill) -->
+          <div id="user-profile-badge" class="hidden items-center bg-slate-800/90 border border-slate-700/80 rounded-lg p-0.5 text-xs whitespace-nowrap shrink-0 shadow-sm">
+            <div class="flex items-center gap-1.5 px-2 py-0.5 text-slate-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
+              <span id="auth-username-display" class="font-semibold text-xs text-blue-300">관리자</span>
+            </div>
+            <div class="h-3 w-px bg-slate-700 mx-0.5"></div>
+            <button onclick="handleLogout()" class="flex items-center gap-1 px-2 py-0.5 rounded hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 text-xs font-medium transition" title="로그아웃">
+              <i data-lucide="log-out" class="w-3 h-3"></i>
+              <span>로그아웃</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Light/Dark Toggle -->
+        <button onclick="toggleTheme()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors border border-slate-700/50 shrink-0" title="테마 변경">
+          <i id="theme-icon" data-lucide="sun" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-24 md:py-8">
+
+    <!-- ============================================================ -->
+    <!-- TAB 1: HOME (Monitorix Graphs)                               -->
+    <!-- ============================================================ -->
+    <section id="section-home" class="tab-content transition-opacity duration-300">
+      
+      <!-- Home Header / Control Toolbar -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-800">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-2xl font-bold tracking-tight text-white">서버 하드웨어 모니터링</h2>
+            <span class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700 font-mono">210.125.111.159:9090</span>
+          </div>
+          <p class="text-sm text-slate-400 mt-1">
+            Monitorix 실시간 시스템 그래프 (LM-Sensors / GPU, NVIDIA, Disk drive)
+          </p>
+        </div>
+
+        <!-- Toolbar Controls -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Time Interval Switcher -->
+          <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1 text-xs">
+            <button onclick="changeTimeRange('1day')" id="range-btn-1day" class="range-btn active px-2.5 py-1 rounded font-medium text-white bg-blue-600 transition">1일 (Day)</button>
+            <button onclick="changeTimeRange('1week')" id="range-btn-1week" class="range-btn px-2.5 py-1 rounded font-medium text-slate-400 hover:text-white transition">1주 (Week)</button>
+            <button onclick="changeTimeRange('1month')" id="range-btn-1month" class="range-btn px-2.5 py-1 rounded font-medium text-slate-400 hover:text-white transition">1달 (Month)</button>
+            <button onclick="changeTimeRange('1year')" id="range-btn-1year" class="range-btn px-2.5 py-1 rounded font-medium text-slate-400 hover:text-white transition">1년 (Year)</button>
+          </div>
+
+          <!-- Auto-Refresh Selector -->
+          <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300">
+            <i data-lucide="timer" class="w-3.5 h-3.5 mr-1.5 text-blue-400"></i>
+            <select id="auto-refresh-select" onchange="setAutoRefresh(this.value)" class="bg-transparent border-0 text-xs focus:ring-0 text-slate-200 cursor-pointer">
+              <option value="0" class="bg-slate-900">새로고침 안 함</option>
+              <option value="30" class="bg-slate-900" selected>30초마다</option>
+              <option value="60" class="bg-slate-900">1분마다</option>
+              <option value="300" class="bg-slate-900">5분마다</option>
+            </select>
+          </div>
+
+          <!-- Manual Refresh Button -->
+          <button onclick="refreshAllGraphs()" id="manual-refresh-btn" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700 transition">
+            <i id="refresh-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>새로고침</span>
+          </button>
+
+          <!-- Direct Monitorix Link -->
+          <a href="http://210.125.111.159:9090/monitorix-cgi/monitorix.cgi?mode=localhost&graph=all&when=1day&color=black" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-semibold px-3 py-1.5 rounded-lg border border-blue-500/30 transition">
+            <span>Monitorix 원본</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Graph Grid (총 3개) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Graph 1: LM-Sensors and GPU temperatures -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-slate-700 transition duration-200 group">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                  <i data-lucide="thermometer" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">LM-Sensors & GPU Temp</h3>
+                  <p class="text-xs text-slate-400">메인보드/CPU/GPU 온도 모니터링</p>
+                </div>
+              </div>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-mono">lmsens</span>
+            </div>
+
+            <!-- Subgraph Switcher for LM-Sensors -->
+            <div class="flex items-center gap-1 mb-3 text-[11px]">
+              <button onclick="setSubGraph('lmsens', '1')" id="sub-lmsens-1" class="px-2 py-0.5 rounded bg-blue-600 text-white font-medium">센서 1</button>
+              <button onclick="setSubGraph('lmsens', '2')" id="sub-lmsens-2" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">센서 2</button>
+              <button onclick="setSubGraph('lmsens', '3')" id="sub-lmsens-3" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">센서 3</button>
+            </div>
+
+            <!-- Image Container -->
+            <div class="relative bg-slate-950 rounded-xl overflow-hidden border border-slate-800/80 min-h-[200px] flex items-center justify-center cursor-pointer" onclick="openGraphModal('lmsens')">
+              <img id="img-lmsens" src="/api/monitorix/graph?type=lmsens&sub=1&range=1day" alt="LM-Sensors and GPU temperatures" class="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.01]" onerror="handleImgError(this)" onload="handleImgLoad(this)">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-xs bg-slate-900/90 text-white px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 shadow-lg">
+                  <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-blue-400"></i>
+                  <span>클릭하여 고화질 확대</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <span class="flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i> 클릭 시 확대 보기</span>
+            <span class="last-updated font-mono text-[11px]">대기 중</span>
+          </div>
+        </div>
+
+        <!-- Graph 2: NVIDIA temperatures and usage -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-slate-700 transition duration-200 group">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <i data-lucide="cpu" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">NVIDIA Temp & Usage</h3>
+                  <p class="text-xs text-slate-400">NVIDIA GPU 온도 및 사용량 점유율</p>
+                </div>
+              </div>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-mono">nvidia</span>
+            </div>
+
+            <!-- Subgraph Switcher for NVIDIA -->
+            <div class="flex items-center gap-1 mb-3 text-[11px]">
+              <button onclick="setSubGraph('nvidia', '1')" id="sub-nvidia-1" class="px-2 py-0.5 rounded bg-blue-600 text-white font-medium">GPU 온도</button>
+              <button onclick="setSubGraph('nvidia', '2')" id="sub-nvidia-2" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">사용률 점유</button>
+              <button onclick="setSubGraph('nvidia', '3')" id="sub-nvidia-3" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">메모리(VRAM)</button>
+            </div>
+
+            <!-- Image Container -->
+            <div class="relative bg-slate-950 rounded-xl overflow-hidden border border-slate-800/80 min-h-[200px] flex items-center justify-center cursor-pointer" onclick="openGraphModal('nvidia')">
+              <img id="img-nvidia" src="/api/monitorix/graph?type=nvidia&sub=1&range=1day" alt="NVIDIA temperatures and usage" class="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.01]" onerror="handleImgError(this)" onload="handleImgLoad(this)">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-xs bg-slate-900/90 text-white px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 shadow-lg">
+                  <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-blue-400"></i>
+                  <span>클릭하여 고화질 확대</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <span class="flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i> 클릭 시 확대 보기</span>
+            <span class="last-updated font-mono text-[11px]">대기 중</span>
+          </div>
+        </div>
+
+        <!-- Graph 3: Disk drive temperatures and health -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between hover:border-slate-700 transition duration-200 group">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-100 text-sm">Disk Drive & Health</h3>
+                  <p class="text-xs text-slate-400">저장 장치 온도 및 SMART 상태</p>
+                </div>
+              </div>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-mono">disk</span>
+            </div>
+
+            <!-- Subgraph Switcher for Disk -->
+            <div class="flex items-center gap-1 mb-3 text-[11px]">
+              <button onclick="setSubGraph('disk', '01')" id="sub-disk-01" class="px-2 py-0.5 rounded bg-blue-600 text-white font-medium">디스크 1</button>
+              <button onclick="setSubGraph('disk', '02')" id="sub-disk-02" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">디스크 2</button>
+              <button onclick="setSubGraph('disk', '03')" id="sub-disk-03" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">디스크 3</button>
+            </div>
+
+            <!-- Image Container -->
+            <div class="relative bg-slate-950 rounded-xl overflow-hidden border border-slate-800/80 min-h-[200px] flex items-center justify-center cursor-pointer" onclick="openGraphModal('disk')">
+              <img id="img-disk" src="/api/monitorix/graph?type=disk&sub=01&range=1day" alt="Disk drive temperatures and health" class="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.01]" onerror="handleImgError(this)" onload="handleImgLoad(this)">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                <span class="text-xs bg-slate-900/90 text-white px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 shadow-lg">
+                  <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-blue-400"></i>
+                  <span>클릭하여 고화질 확대</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <span class="flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5 text-blue-400"></i> 클릭 시 확대 보기</span>
+            <span class="last-updated font-mono text-[11px]">대기 중</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Server Info Footer Card -->
+      <div class="mt-8 bg-slate-900/50 border border-slate-800/80 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          <span>모니터링 대상 호스트: <b>210.125.111.159:9090</b> (Localhost Monitorix Agent)</span>
+        </div>
+        <div>
+          <span>그래프 데이터는 주기적으로 자동 업데이트되며 브라우저 캐시 방지 파라미터가 적용됩니다.</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 2: SITE (Bookmarks Hub)                                  -->
+    <!-- ============================================================ -->
+    <section id="section-site" class="tab-content hidden transition-opacity duration-300">
+      
+      <!-- Site Header (Compact) -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-800">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <span>자주 가는 사이트</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-medium">바로가기</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">클릭 시 해당 웹사이트가 새 창에서 바로 열립니다.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Compact Search Bar -->
+          <div class="relative w-full sm:w-44">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="site-search-input" onkeyup="filterSites()" placeholder="사이트 검색..." class="w-full pl-8 pr-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+          </div>
+
+          <!-- Add Site Button -->
+          <button onclick="openSiteModal()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-sm whitespace-nowrap">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>사이트 추가</span>
+          </button>
+
+          <!-- Category Management Button -->
+          <button onclick="openSiteCategoryModal()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1 border border-slate-700 transition whitespace-nowrap" title="카테고리 관리">
+            <i data-lucide="folder-cog" class="w-3.5 h-3.5"></i>
+            <span>카테고리 관리</span>
+          </button>
+
+          <!-- Edit Mode Toggle Button -->
+          <button id="site-edit-mode-btn" onclick="toggleSiteEditMode()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs font-medium flex items-center gap-1 border border-slate-700 transition whitespace-nowrap" title="수정/삭제 모드">
+            <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+            <span id="site-edit-mode-label">수정/삭제</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Site Bookmarks Compact Container -->
+      <div id="site-container">
+        <!-- Compact Buttons will be rendered by JS -->
+      </div>
+
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 3: COURSE (Courses & Syllabus PDF)                       -->
+    <!-- ============================================================ -->
+    <!-- ============================================================ -->
+    <!-- TAB 3: COURSE (Courses & Syllabus PDF)                       -->
+    <!-- ============================================================ -->
+    <section id="section-course" class="tab-content hidden transition-opacity duration-300">
+      
+      <!-- LMS Quick Jump Banner -->
+      <div class="bg-gradient-to-r from-blue-900/40 via-indigo-900/30 to-slate-900 border border-blue-500/20 rounded-2xl p-5 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/30 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">온라인 강의실 (LMS) 바로가기</h3>
+            <p class="text-xs text-slate-300 mt-0.5">수강 중인 과목의 출석 확인 및 온라인 과제 제출</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+          <a href="https://lms.pknu.ac.kr/ilos/main/main_form.acl" target="_blank" rel="noopener noreferrer" class="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-md shadow-blue-600/20">
+            <span>부경대 LMS</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+          </a>
+          <a href="https://lms.hussis.ac.kr/login/index.php" target="_blank" rel="noopener noreferrer" class="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-md shadow-indigo-600/20">
+            <span>인천대 HUSS</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+          </a>
+          <a href="https://www.hakjum.com/index.asp" target="_blank" rel="noopener noreferrer" class="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-md shadow-emerald-600/20">
+            <span>한사평 (평생교육원)</span>
+            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Course Header & Upload Bar -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 mb-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                <i data-lucide="book-marked" class="w-5 h-5 text-blue-400"></i>
+                수강 강의 및 주간 시간표
+              </h3>
+              <span id="course-count-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold">0개 수강 중</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">강의계획서 PDF를 업로드하면 과목 정보, 7일 시간표, 평가방법, 주차별 계획이 자동 반영됩니다.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- View Mode Switcher -->
+            <div class="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-1 text-xs">
+              <button onclick="setCourseViewMode('timetable')" id="view-mode-timetable" class="course-view-btn active px-3 py-1.5 rounded font-medium text-white bg-blue-600 transition flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                <span>시간표 (7일)</span>
+              </button>
+              <button onclick="setCourseViewMode('cards')" id="view-mode-cards" class="course-view-btn px-3 py-1.5 rounded font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                <span>과목 카드</span>
+              </button>
+              <button onclick="setCourseViewMode('both')" id="view-mode-both" class="course-view-btn px-3 py-1.5 rounded font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                <i data-lucide="columns" class="w-3.5 h-3.5"></i>
+                <span>둘 다</span>
+              </button>
+            </div>
+
+            <!-- Manual Add Button -->
+            <button onclick="openManualCourseModal()" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5 text-blue-400"></i>
+              <span>수기 등록</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Integrated Compact PDF Upload Area -->
+        <div class="mt-4">
+          <div id="pdf-dropzone" class="border-2 border-dashed border-slate-700 hover:border-blue-500 bg-slate-950/70 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 cursor-pointer transition-colors duration-200 group">
+            <input type="file" id="pdf-file-input" accept=".pdf" class="hidden">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+                <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-xs font-semibold text-slate-200 group-hover:text-blue-300 transition-colors">
+                  새 강의계획서 PDF 파일 업로드 (여기에 끌어다 놓거나 클릭)
+                </p>
+                <p class="text-[11px] text-slate-500">부경대/인천대 등 정규 강의계획서 .pdf 자동 텍스트 분석</p>
+              </div>
+            </div>
+            <span class="text-xs px-3 py-1 rounded-lg bg-slate-800 text-blue-400 border border-slate-700 group-hover:bg-blue-600 group-hover:text-white transition font-medium whitespace-nowrap">
+              파일 선택
+            </span>
+          </div>
+
+          <!-- Upload Status / Spinner -->
+          <div id="upload-status" class="hidden mt-3 p-2.5 rounded-lg bg-slate-800/80 border border-slate-700/60 text-xs text-slate-300 flex items-center gap-2">
+            <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-blue-400"></i>
+            <span id="upload-status-text">PDF 텍스트 정밀 파싱 중...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 1: 7-Day Timetable with Span Merging (Top) -->
+      <div id="course-timetable-container" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800">
+          <div>
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-blue-400"></i>
+              주간 강의 시간표 (월 ~ 일 7일 전체)
+            </h4>
+            <p class="text-xs text-slate-400 mt-0.5">1교시 = 09:00 (1시간 간격), 2·3시간 등 연속 수업은 교시 수에 비례하는 통합 블록으로 표시됩니다.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-blue-400 font-medium sm:hidden flex items-center gap-1 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
+              <i data-lucide="arrow-left-right" class="w-3 h-3"></i> 좌우 스크롤
+            </span>
+            <span class="text-[11px] text-slate-500 font-mono hidden sm:inline">수업 블록 클릭 시 상세 모달</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mobile-touch-scroll border border-slate-800 rounded-xl bg-slate-950/70 shadow-inner">
+          <table id="timetable-table" class="w-full text-xs text-center border-collapse table-fixed min-w-[700px] lg:min-w-full">
+            <thead>
+              <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 text-[11px] font-semibold">
+                <th class="py-3 px-2 w-28 border-r border-slate-800 sticky-col-header">교시 (시간)</th>
+                <th class="py-3 px-2 border-r border-slate-800 text-slate-200">월 (Mon)</th>
+                <th class="py-3 px-2 border-r border-slate-800 text-slate-200">화 (Tue)</th>
+                <th class="py-3 px-2 border-r border-slate-800 text-slate-200">수 (Wed)</th>
+                <th class="py-3 px-2 border-r border-slate-800 text-slate-200">목 (Thu)</th>
+                <th class="py-3 px-2 border-r border-slate-800 text-slate-200">금 (Fri)</th>
+                <th class="py-3 px-2 border-r border-slate-800 text-indigo-400">토 (Sat)</th>
+                <th class="py-3 px-2 text-rose-400">일 (Sun)</th>
+              </tr>
+            </thead>
+            <tbody id="timetable-tbody" class="divide-y divide-slate-800/50">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- VIEW 2: Course Icon Cards Grid (3 Columns) -->
+      <div id="course-cards-container" class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <i data-lucide="grid" class="w-4 h-4 text-blue-400"></i>
+            수강 과목 카드 목록 (3열 배치)
+          </h4>
+          <span class="text-[11px] text-slate-400">과목 카드를 클릭하여 상세 계획서 및 평가비율 확인</span>
+        </div>
+        <div id="course-icon-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 4: SCHEDULE (Academic & Personal Calendar)               -->
+    <!-- ============================================================ -->
+    <section id="section-schedule" class="tab-content hidden transition-opacity duration-300">
+      
+      <!-- Schedule Header & Controls -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-800">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-2xl font-bold tracking-tight text-white">학사 및 개인 일정 관리</h2>
+            <span class="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-medium">수강 과목 자동 연동</span>
+          </div>
+          <p class="text-sm text-slate-400 mt-1">수강 중인 과목의 요일별 시간표와 시험, 과제, 세미나, 개인 일정을 한눈에 관리합니다.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- View Switcher (Month / Week) -->
+          <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1 text-xs">
+            <button onclick="setScheduleViewMode('month')" id="sched-view-month" class="sched-view-btn active px-3 py-1.5 rounded-md font-medium text-white bg-blue-600 transition flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+              <span>월간 (Month)</span>
+            </button>
+            <button onclick="setScheduleViewMode('week')" id="sched-view-week" class="sched-view-btn px-3 py-1.5 rounded-md font-medium text-slate-400 hover:text-white transition flex items-center gap-1.5">
+              <i data-lucide="calendar-range" class="w-3.5 h-3.5"></i>
+              <span>주간 (Week)</span>
+            </button>
+          </div>
+
+          <!-- Add Event Button -->
+          <button onclick="openScheduleEventModal()" class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-md shadow-blue-600/20 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>일정 추가</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule Layout: Left Category Checkboxes Sidebar + Right Calendar Area -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left Column: Category Checkbox Multi-Filter Sidebar -->
+        <aside class="lg:col-span-3 space-y-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl lg:sticky lg:top-6">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4 text-blue-400"></i>
+                <h4 class="text-sm font-bold text-white">일정 분류 필터</h4>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="toggleAllScheduleCategories()" id="btn-toggle-all-cats" class="text-[11px] text-blue-400 hover:text-blue-300 font-semibold px-2 py-0.5 rounded hover:bg-slate-800 transition">
+                  전체 해제
+                </button>
+                <!-- Mobile Accordion Toggle Button -->
+                <button id="mobile-filter-accordion-toggle" onclick="toggleMobileFilterAccordion()" class="lg:hidden p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="필터 접기/펼치기">
+                  <i id="mobile-filter-accordion-icon" data-lucide="chevron-down" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter Body: Collapsible on mobile, always visible on lg+ -->
+            <div id="mobile-filter-accordion-body" class="hidden lg:block pt-3">
+              <!-- Checkbox List -->
+              <div id="schedule-category-checkbox-list" class="space-y-1.5">
+                <!-- Rendered by JS -->
+              </div>
+
+              <!-- Category Management & Academic Sync Buttons -->
+              <div class="pt-3 mt-3 border-t border-slate-800/80 space-y-2">
+                <button onclick="syncAcademicCalendar()" id="btn-sync-academic" class="w-full flex items-center justify-center gap-1.5 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 hover:text-orange-300 text-xs font-semibold py-2 px-3 rounded-xl border border-orange-500/30 transition shadow-sm" title="부경대학교 LMS 학사일정 새로고침">
+                  <i id="icon-sync-academic" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span id="text-sync-academic">학사일정 새로고침</span>
+                </button>
+                <button onclick="openCategoryModal()" class="w-full flex items-center justify-center gap-1.5 bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold py-2 px-3 rounded-xl border border-slate-800 transition shadow-sm">
+                  <i data-lucide="tags" class="w-3.5 h-3.5 text-indigo-400"></i>
+                  <span>카테고리 관리</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Right Column: Calendar Main Area -->
+        <div class="lg:col-span-9 space-y-6">
+          <!-- Calendar Navigation Bar -->
+          <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800 rounded-2xl px-5 py-3.5 shadow-md">
+            <div class="flex items-center gap-3">
+              <h3 id="schedule-current-period-title" class="text-lg font-bold text-white tracking-tight">--</h3>
+              <button onclick="goToScheduleToday()" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 border border-slate-700 transition">
+                오늘
+              </button>
+            </div>
+
+            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+              <button onclick="navigateScheduleDate(-1)" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition" title="이전">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <button onclick="navigateScheduleDate(1)" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition" title="다음">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Calendar Views Container -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <!-- Month View Grid -->
+            <div id="schedule-month-view">
+              <!-- Rendered by JS -->
+            </div>
+
+            <!-- Week View Grid -->
+            <div id="schedule-week-view" class="hidden">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. COURSE DETAIL MODAL (Opens when clicking course icon/card) -->
+  <div id="course-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+        <div class="flex items-center gap-3">
+          <div id="modal-course-icon" class="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold text-xl">
+            📚
+          </div>
+          <div>
+            <h3 id="modal-course-title" class="text-lg font-bold text-white">과목명</h3>
+            <p id="modal-course-prof" class="text-xs text-slate-400">담당교수</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="editCurrentCourse()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1 border border-slate-700 transition" title="수정">
+            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">수정</span>
+          </button>
+          <button onclick="deleteCurrentCourse()" class="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs flex items-center gap-1 border border-red-500/30 transition" title="삭제">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">삭제</span>
+          </button>
+          <button onclick="closeCourseModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-6 overflow-y-auto space-y-6">
+
+        <!-- Top Metadata Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block mb-1 flex items-center gap-1">
+              <i data-lucide="map-pin" class="w-3 h-3 text-red-400"></i> 강의실 위치
+            </span>
+            <span id="modal-classroom" class="text-sm font-semibold text-slate-200">미지정</span>
+          </div>
+
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block mb-1 flex items-center gap-1">
+              <i data-lucide="clock" class="w-3 h-3 text-amber-400"></i> 강의 시간
+            </span>
+            <span id="modal-classtime" class="text-sm font-semibold text-slate-200">미지정</span>
+          </div>
+
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block mb-1 flex items-center gap-1">
+              <i data-lucide="user" class="w-3 h-3 text-blue-400"></i> 담당 교수
+            </span>
+            <span id="modal-prof-box" class="text-sm font-semibold text-slate-200">미지정</span>
+          </div>
+        </div>
+
+        <!-- Evaluation Method (평가방법) -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="pie-chart" class="w-3.5 h-3.5 text-indigo-400"></i>
+              평가 방법 및 성적 반영비율
+            </h4>
+            <span id="modal-grading-summary" class="text-xs text-blue-400 font-medium"></span>
+          </div>
+
+          <!-- Evaluation Badges -->
+          <div id="modal-grading-bars" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Weekly Syllabus (주별강의계획서) -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i>
+            주차별 강의 계획서
+          </h4>
+
+          <div class="overflow-x-auto border border-slate-800 rounded-xl">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 uppercase text-[11px] border-b border-slate-800">
+                <tr>
+                  <th class="py-2.5 px-3 w-16 border-r border-slate-800 text-center">주차</th>
+                  <th class="py-2.5 px-3 w-48 border-r border-slate-800">강의주제</th>
+                  <th class="py-2.5 px-3 border-r border-slate-800">상세 강의내용</th>
+                  <th class="py-2.5 px-3 w-48">과제 및 기타 참고사항</th>
+                </tr>
+              </thead>
+              <tbody id="modal-weekly-tbody" class="divide-y divide-slate-800/60 bg-slate-900/50 font-normal">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Original PDF Link -->
+        <div id="modal-pdf-container" class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-400">업로드된 원본 강의계획서:</span>
+          <a id="modal-pdf-link" href="#" target="_blank" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>PDF 원본 보기 / 다운로드</span>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex justify-end">
+        <button onclick="closeCourseModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. REVIEW & CONFIRM MODAL (After PDF upload or for editing) -->
+  <div id="review-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+        <div>
+          <h3 id="review-modal-title" class="text-base font-bold text-white">강의계획서 분석 결과 확인 및 수정</h3>
+          <p class="text-xs text-slate-400 mt-0.5">추출된 정보를 검토하고 필요시 수정하여 저장하세요.</p>
+        </div>
+        <button onclick="closeReviewModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 text-xs">
+        <input type="hidden" id="edit-course-id">
+        <input type="hidden" id="edit-pdf-filename">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">과목명 (제목) *</label>
+            <input type="text" id="form-title" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">담당교수</label>
+            <input type="text" id="form-prof" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">강의실 위치</label>
+            <input type="text" id="form-classroom" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs" placeholder="예: 자연과학관 302호">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">강의 시간</label>
+            <input type="text" id="form-classtime" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs" placeholder="예: 화 10:00~11:50, 목 10:00~10:50">
+          </div>
+        </div>
+
+        <!-- Icon & Color Customization -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="block text-slate-300 font-semibold flex items-center gap-1.5">
+              <span>과목 대표 아이콘 선택</span>
+              <span class="text-[10px] text-slate-500 font-normal">(전공 맞춤형)</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-slate-400">선택된 아이콘:</span>
+              <span id="selected-icon-preview" class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 text-blue-300 text-lg flex items-center justify-center font-bold shadow-sm">📚</span>
+              <input type="hidden" id="form-icon" value="📚">
+            </div>
+          </div>
+
+          <!-- Icon Category Tabs -->
+          <div class="flex items-center gap-1 overflow-x-auto pb-1 text-[11px] border-b border-slate-800/80">
+            <button type="button" onclick="filterIconCategory('all')" id="icon-cat-all" class="icon-cat-btn active px-2.5 py-1 rounded bg-blue-600 text-white font-medium">전체</button>
+            <button type="button" onclick="filterIconCategory('bme')" id="icon-cat-bme" class="icon-cat-btn px-2.5 py-1 rounded bg-slate-900 text-slate-400 hover:text-white">의공학</button>
+            <button type="button" onclick="filterIconCategory('welfare')" id="icon-cat-welfare" class="icon-cat-btn px-2.5 py-1 rounded bg-slate-900 text-slate-400 hover:text-white">사회복지</button>
+            <button type="button" onclick="filterIconCategory('inclusion')" id="icon-cat-inclusion" class="icon-cat-btn px-2.5 py-1 rounded bg-slate-900 text-slate-400 hover:text-white">포용사회</button>
+            <button type="button" onclick="filterIconCategory('general')" id="icon-cat-general" class="icon-cat-btn px-2.5 py-1 rounded bg-slate-900 text-slate-400 hover:text-white">일반/공학</button>
+          </div>
+
+          <!-- Icon Selection Grid -->
+          <div id="course-icon-picker-grid" class="grid grid-cols-8 sm:grid-cols-12 gap-1.5 max-h-28 overflow-y-auto pr-1">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">평가방법 요약 (성적 반영비율)</label>
+            <input type="text" id="form-grading" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs" placeholder="예: 중간고사 40%, 기말고사 40%, 출석 10%">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-medium mb-1.5">과목 대표 색상</label>
+            <div id="course-color-picker" class="flex items-center gap-2 pt-0.5">
+              <!-- Rendered by JS -->
+            </div>
+            <input type="hidden" id="form-color" value="blue">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-slate-400 font-medium">주차별 강의계획 (1~16주 요약)</label>
+            <button onclick="addWeekRow()" class="text-blue-400 hover:text-blue-300 text-[11px] font-semibold">+ 주차 추가</button>
+          </div>
+          <div id="weekly-editor-list" class="max-h-48 overflow-y-auto space-y-2 border border-slate-800 p-2 rounded-lg bg-slate-950">
+            <!-- Weekly Editor Rows rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex justify-end gap-2">
+        <button onclick="closeReviewModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+          취소
+        </button>
+        <button onclick="saveCourseFromReview()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center gap-1.5">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>저장하기</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. GRAPH LIGHTBOX MODAL (Enlarged Monitorix Graph) -->
+  <div id="graph-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-5xl w-full flex flex-col shadow-2xl overflow-hidden">
+      
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div class="flex items-center gap-2">
+          <i data-lucide="activity" class="w-4 h-4 text-blue-400"></i>
+          <h3 id="graph-modal-title" class="text-sm font-bold text-white">모니터링 고해상도 그래프</h3>
+        </div>
+        <button onclick="closeGraphModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 bg-black flex items-center justify-center overflow-auto min-h-[350px]">
+        <img id="graph-modal-img" src="" alt="Enlarged Graph" class="max-w-full h-auto rounded-lg">
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between text-xs text-slate-400">
+        <span id="graph-modal-url" class="font-mono text-[11px] truncate max-w-md"></span>
+        <button onclick="closeGraphModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-semibold transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. SCHEDULE EVENT MODAL (Add / Edit Event) -->
+  <div id="schedule-event-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
+            <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 id="sched-modal-title" class="text-base font-bold text-white">일정 등록</h3>
+            <p class="text-xs text-slate-400">새로운 학사 또는 개인 일정을 등록합니다.</p>
+          </div>
+        </div>
+        <button onclick="closeScheduleEventModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-xs">
+        <input type="hidden" id="sched-form-id">
+
+        <!-- Title -->
+        <div>
+          <label class="block text-slate-400 font-medium mb-1">일정 제목 *</label>
+          <input type="text" id="sched-form-title" placeholder="예: 생체재료학 중간고사, 연구실 세미나 발표" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs font-semibold">
+        </div>
+
+        <!-- Category & Color -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">분류 (카테고리)</label>
+            <select id="sched-form-category" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">표시 색상</label>
+            <div id="sched-color-picker" class="flex items-center gap-1.5 pt-1">
+              <!-- Rendered by JS -->
+            </div>
+            <input type="hidden" id="sched-form-color" value="blue">
+          </div>
+        </div>
+
+        <!-- Date Range & All Day -->
+        <div class="space-y-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-400 font-medium mb-1">시작일 *</label>
+              <input type="date" id="sched-form-date" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-medium mb-1 flex items-center justify-between">
+                <span>종료일</span>
+                <span class="text-[10px] text-slate-500">(연속 기간 일정 시)</span>
+              </label>
+              <input type="date" id="sched-form-end-date" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+            </div>
+          </div>
+          <div class="flex items-center pt-1">
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="sched-form-allday" onchange="toggleScheduleAllDay(this.checked)" class="rounded bg-slate-950 border-slate-700 text-blue-600 focus:ring-0">
+              <span class="text-xs text-slate-300 font-medium">종일 일정</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Time Range (Hidden if All Day) -->
+        <div id="sched-time-inputs" class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">시작 시간</label>
+            <input type="time" id="sched-form-start" value="09:00" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-medium mb-1">종료 시간</label>
+            <input type="time" id="sched-form-end" value="10:00" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+          </div>
+        </div>
+
+        <!-- Memo -->
+        <div>
+          <label class="block text-slate-400 font-medium mb-1">메모 및 세부내용</label>
+          <textarea id="sched-form-memo" rows="2" placeholder="준비물, 장소, 참고 URL 등..." class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs"></textarea>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div>
+          <button id="sched-btn-delete" onclick="deleteScheduleFromModal()" class="hidden px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold border border-red-500/30 transition flex items-center gap-1">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>삭제</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="closeScheduleEventModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+            취소
+          </button>
+          <button onclick="saveScheduleEventFromModal()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20">
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>저장하기</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. SCHEDULE CATEGORY MODAL -->
+  <div id="schedule-category-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+            <i data-lucide="tags" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">일정 카테고리 관리</h3>
+            <p class="text-xs text-slate-400">일정을 분류할 태그와 테마 색상을 관리합니다.</p>
+          </div>
+        </div>
+        <button onclick="closeCategoryModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 text-xs">
+        <!-- Existing Categories List -->
+        <div>
+          <label class="block text-slate-400 font-medium mb-2">현재 등록된 카테고리</label>
+          <div id="category-list-container" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Add New Category Form -->
+        <div class="pt-3 border-t border-slate-800">
+          <label class="block text-slate-300 font-semibold mb-2">새 카테고리 추가</label>
+          <div class="space-y-3 bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+            <div>
+              <input type="text" id="new-cat-name" placeholder="카테고리명 (예: 동아리, 운동, 자격증)" class="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+            </div>
+            <div class="flex items-center justify-between">
+              <div id="new-cat-color-picker" class="flex items-center gap-1.5">
+                <!-- Color options rendered by JS -->
+              </div>
+              <input type="hidden" id="new-cat-color" value="purple">
+              <button onclick="createNewCategory()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition flex items-center gap-1">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>추가</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex justify-end">
+        <button onclick="closeCategoryModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. ADMIN LOGIN MODAL -->
+  <div id="login-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">관리자 로그인</h3>
+            <p id="login-modal-subtitle" class="text-xs text-slate-400">일정 및 강의 추가·수정·삭제를 위한 인증</p>
+          </div>
+        </div>
+        <button onclick="closeLoginModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body Form -->
+      <form id="login-form" onsubmit="event.preventDefault(); handleLoginSubmit();" class="p-5 space-y-4">
+        
+        <!-- Info Banner -->
+        <div class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs flex items-start gap-2.5">
+          <i data-lucide="info" class="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5"></i>
+          <p id="login-modal-banner-desc">일정 등록/수정/삭제, 강의 관리 및 강의계획서 PDF 업로드는 로그인 후 이용 가능합니다.</p>
+        </div>
+
+        <!-- Error Message Alert Box -->
+        <div id="login-error-box" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span id="login-error-text">아이디 또는 비밀번호가 올바르지 않습니다.</span>
+        </div>
+
+        <!-- ID Input -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-300">아이디 (학번)</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="login-id" required autocomplete="username" placeholder="아이디 (학번)" 
+                   class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition">
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="space-y-1.5">
+          <label class="block text-xs font-semibold text-slate-300">비밀번호</label>
+          <div class="relative">
+            <i data-lucide="key" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="password" id="login-pw" required autocomplete="current-password" placeholder="비밀번호" 
+                   class="w-full pl-9 pr-10 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-blue-500 transition">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200" title="비밀번호 표시 전환">
+              <i id="pw-toggle-icon" data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit & Cancel Buttons -->
+        <div class="pt-2 flex items-center gap-2">
+          <button type="button" onclick="closeLoginModal()" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+            취소
+          </button>
+          <button type="submit" id="btn-login-submit" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs transition shadow-lg shadow-blue-500/25 flex items-center justify-center gap-1.5">
+            <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+            <span id="btn-login-text">로그인</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- 6. GRADING EVALUATION MEMO MODAL (중간고사, 기말고사, 과제 등 메모장) -->
+  <div id="grading-memo-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+        <div class="flex items-center gap-2.5">
+          <div id="grading-memo-icon-box" class="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold text-base">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span id="grading-memo-title">평가 항목 메모</span>
+              <span id="grading-memo-pct-badge" class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-medium border border-blue-500/30"></span>
+            </h3>
+            <p id="grading-memo-subtitle" class="text-xs text-slate-400 mt-0.5">과목명 • 시험 및 과제 상세 정보 메모장</p>
+          </div>
+        </div>
+        <button onclick="closeGradingMemoModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 space-y-4">
+        <!-- Info Banner -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs flex items-start gap-2.5">
+          <i data-lucide="info" class="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5"></i>
+          <p>시험 범위, 출제 경향, 과제 제출 기한, 유의사항 및 교수님 공지사항을 상세히 메모해두세요.</p>
+        </div>
+
+        <!-- Textarea -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span>상세 메모 내용</span>
+            <span id="grading-memo-char-count" class="text-[11px] text-slate-500 font-mono">0자</span>
+          </label>
+          <textarea id="grading-memo-textarea" rows="7" 
+                    placeholder="예:&#10;• 시험 범위: 1~7주차 강의자료 및 실습 과제&#10;• 출제 방식: 객관식 20문항 + 단답형 실습 코딩 2문항&#10;• 시험 일시: 10월 22일(수) 2~3교시 (A12-216호)&#10;• 계산기 지참 가능, 오픈북 아님"
+                    class="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-600 text-xs focus:outline-none focus:border-blue-500 transition leading-relaxed resize-none"></textarea>
+        </div>
+
+        <!-- Hidden State Fields -->
+        <input type="hidden" id="grading-memo-course-id" value="">
+        <input type="hidden" id="grading-memo-category" value="">
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500 flex items-center gap-1">
+          <i data-lucide="shield" class="w-3 h-3 text-slate-600"></i>
+          <span>수정 저장 시 로그인이 필요합니다</span>
+        </span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeGradingMemoModal()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+            닫기
+          </button>
+          <button type="button" onclick="saveGradingMemo()" id="btn-save-grading-memo" class="px-4 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition shadow-md shadow-blue-600/20 flex items-center gap-1.5">
+            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+            <span>메모 저장</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 7. MOBILE & PUBLIC ACCESS CONNECTION MODAL (Public Cloudflare URL & QR Code) -->
+  <div id="mobile-connect-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 border border-blue-500/30 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-blue-500/20">
+            <i data-lucide="globe" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>어디서나 접속 가능한 링크 공유</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                LTE/5G 가능
+              </span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">링크만 있으면 친구, 교수님 등 누구든지 즉시 사이트에 접속할 수 있습니다.</p>
+          </div>
+        </div>
+        <button onclick="closeMobileConnectModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 space-y-4">
+
+        <!-- 1. Primary Public Link Box (Hero) -->
+        <div class="p-4 rounded-2xl bg-gradient-to-b from-blue-950/40 to-slate-950 border border-blue-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+              <i data-lucide="share-2" class="w-3.5 h-3.5 text-blue-400"></i>
+              누구에게나 공유할 수 있는 주소 (카톡 전송용)
+            </span>
+            <span id="public-url-status-pill" class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+              <i data-lucide="shield-check" class="w-3 h-3"></i> 보안 HTTPS 연결됨
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="text" id="mobile-connect-url-input" readonly value="공개 접속 링크 생성 중..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-blue-500/40 text-blue-200 font-mono text-xs focus:outline-none select-all shadow-inner font-semibold">
+            <button onclick="copyConnectUrl()" id="btn-copy-connect-url" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 transition flex-shrink-0 shadow-md shadow-blue-500/25">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span id="text-copy-connect-url">링크 복사</span>
+            </button>
+          </div>
+          
+          <p id="copy-toast-msg" class="text-[11px] text-emerald-400 font-medium hidden flex items-center gap-1">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            링크가 클립보드에 복사되었습니다! 카카오톡이나 메시지로 친구에게 보내보세요.
+          </p>
+        </div>
+
+        <!-- 2. QR Code & Description -->
+        <div class="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-slate-950 border border-slate-800">
+          <!-- QR Code Image -->
+          <div class="flex flex-col items-center justify-center p-2.5 bg-white rounded-xl border border-slate-700 shadow-inner flex-shrink-0">
+            <img id="mobile-connect-qr-img" src="/api/system/qrcode" alt="QR Code" class="w-32 h-32 object-contain">
+            <span class="text-[10px] text-slate-800 font-bold mt-1">스마트폰 카메라로 스캔</span>
+          </div>
+
+          <!-- Guide Info -->
+          <div class="space-y-2 text-xs text-slate-300">
+            <div class="flex items-center gap-1.5 font-bold text-white">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+              <span>어떻게 사용하나요?</span>
+            </div>
+            <ul class="space-y-1.5 text-[11px] text-slate-400 leading-relaxed list-disc list-inside">
+              <li><b>카카오톡 / 문자 공유</b>: [링크 복사] 버튼을 눌러 카카오톡에 붙여넣기만 하면 친구나 상대방이 바로 접속할 수 있습니다.</li>
+              <li><b>내 폰에서 바로 열기</b>: 스마트폰 기본 카메라 앱으로 위의 QR 코드를 비추면 즉시 열립니다.</li>
+              <li><b>어디서나 작동</b>: 학교 밖, 집, 카페, 스마트폰 LTE/5G 데이터 등 네트워크 상관없이 언제나 접속됩니다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 3. Local Wi-Fi Secondary Info -->
+        <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-slate-400 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="wifi" class="w-3.5 h-3.5 text-slate-500"></i>
+            <span class="text-[11px]">동일 교내 Wi-Fi 직접 접속 IP:</span>
+            <span id="local-ip-display" class="font-mono text-[11px] text-slate-300">210.125.111.157:5000</span>
+          </div>
+          <button onclick="copyLocalUrl()" class="text-[11px] text-blue-400 hover:text-blue-300 font-medium transition">IP 복사</button>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-end">
+        <button type="button" onclick="closeMobileConnectModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SITE ADD/EDIT MODAL ================= -->
+  <div id="site-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <h3 id="site-modal-title-heading" class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="link" class="w-4 h-4 text-blue-400"></i>
+          <span id="site-modal-header-text">사이트 바로가기 등록</span>
+        </h3>
+        <button type="button" onclick="closeSiteModal()" class="text-slate-400 hover:text-white transition p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-5 space-y-4 text-xs">
+        <input type="hidden" id="site-modal-id" value="">
+
+        <div>
+          <label class="block font-medium text-slate-300 mb-1.5">사이트 이름 <span class="text-rose-400">*</span></label>
+          <input type="text" id="site-modal-title" placeholder="예: 네이버 지도, 노션, 부경대 기숙사" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-xs">
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-300 mb-1.5">사이트 URL (링크 주소) <span class="text-rose-400">*</span></label>
+          <input type="url" id="site-modal-url" placeholder="https://..." class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 text-xs font-mono">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block font-medium text-slate-300">카테고리 분류 <span class="text-rose-400">*</span></label>
+            <button type="button" onclick="openSiteCategoryModalFromSiteModal()" class="text-[11px] text-blue-400 hover:text-blue-300 font-medium">+ 새 카테고리</button>
+          </div>
+          <select id="site-modal-category" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:border-blue-500 text-xs">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <p id="site-modal-error" class="text-[11px] text-rose-400 hidden"></p>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
+        <button type="button" id="site-modal-delete-btn" onclick="deleteCurrentSiteFromModal()" class="px-3 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white text-xs font-medium transition hidden">
+          삭제
+        </button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button type="button" onclick="closeSiteModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
+            취소
+          </button>
+          <button type="button" onclick="saveSiteFromModal()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">
+            저장
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= SITE CATEGORY MANAGEMENT MODAL ================= -->
+  <div id="site-category-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="folder-cog" class="w-4 h-4 text-cyan-400"></i>
+          <span>사이트 카테고리 관리</span>
+        </h3>
+        <button type="button" onclick="closeSiteCategoryModal()" class="text-slate-400 hover:text-white transition p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-5 space-y-4 text-xs">
+        
+        <!-- Add New Category Box -->
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <span class="font-bold text-slate-200 block text-xs">새 카테고리 추가</span>
+          <div>
+            <input type="text" id="site-cat-new-title" placeholder="카테고리 이름 (예: 대외활동, 즐겨찾기, 개발)" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1.5">색상 테마 선택</label>
+            <div id="site-cat-color-palette" class="flex flex-wrap gap-2">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+          <button type="button" onclick="createNewSiteCategory()" class="w-full py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold transition text-xs flex items-center justify-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>카테고리 등록</span>
+          </button>
+          <p id="site-cat-error" class="text-[11px] text-rose-400 hidden"></p>
+        </div>
+
+        <!-- Existing Categories List -->
+        <div>
+          <span class="font-bold text-slate-300 block text-xs mb-2">등록된 카테고리 목록</span>
+          <div id="site-cat-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-end">
+        <button type="button" onclick="closeSiteCategoryModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition">
+          완료
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MOBILE FIXED BOTTOM NAVIGATION ================= -->
+  <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 px-2 py-2 safe-area-bottom shadow-2xl flex items-center justify-around">
+    <button onclick="switchTab('home')" id="mobile-tab-home" class="mobile-tab-btn active flex-1 flex flex-col items-center justify-center py-1 rounded-xl text-xs font-medium text-blue-400 transition duration-150">
+      <i data-lucide="activity" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Home</span>
+    </button>
+    <button onclick="switchTab('site')" id="mobile-tab-site" class="mobile-tab-btn flex-1 flex flex-col items-center justify-center py-1 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 transition duration-150">
+      <i data-lucide="globe" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Site</span>
+    </button>
+    <button onclick="switchTab('course')" id="mobile-tab-course" class="mobile-tab-btn flex-1 flex flex-col items-center justify-center py-1 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 transition duration-150">
+      <i data-lucide="book-open" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Course</span>
+    </button>
+    <button onclick="switchTab('schedule')" id="mobile-tab-schedule" class="mobile-tab-btn flex-1 flex flex-col items-center justify-center py-1 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 transition duration-150">
+      <i data-lucide="calendar-days" class="w-5 h-5 mb-0.5"></i>
+      <span class="text-[10px]">Schedule</span>
+    </button>
+  </nav>
+
+  <script src="/static/js/app.js"></script>
+  <script>
+    // Initialize Lucide icons on load
+    lucide.createIcons();
+  </script>
+</body>
+</html>
